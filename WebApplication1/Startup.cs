@@ -12,6 +12,7 @@ using WebApplication1.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using WebApplication1.Models;
 
 namespace WebApplication1
 {
@@ -30,8 +31,17 @@ namespace WebApplication1
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+
+            //services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            //    .AddEntityFrameworkStores<ApplicationDbContext>();
+
+            services.AddIdentity<ApplicationUser, IdentityRole>()
+         .AddEntityFrameworkStores<ApplicationDbContext>()
+         .AddDefaultUI()
+         .AddDefaultTokenProviders();
+
+
+
             services.AddControllersWithViews();
             services.AddRazorPages();
 
