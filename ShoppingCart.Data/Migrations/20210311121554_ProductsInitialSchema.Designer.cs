@@ -10,14 +10,14 @@ using ShoppingCart.Data.Context;
 namespace ShoppingCart.Data.Migrations
 {
     [DbContext(typeof(ShoppingCartDbContext))]
-    [Migration("20201029083932_MakingProductIdIdentity")]
-    partial class MakingProductIdIdentity
+    [Migration("20210311121554_ProductsInitialSchema")]
+    partial class ProductsInitialSchema
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.9")
+                .HasAnnotation("ProductVersion", "3.1.12")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -37,6 +37,22 @@ namespace ShoppingCart.Data.Migrations
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("ShoppingCart.Domain.Models.Member", b =>
+                {
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("FirstName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Email");
+
+                    b.ToTable("Members");
+                });
+
             modelBuilder.Entity("ShoppingCart.Domain.Models.Product", b =>
                 {
                     b.Property<Guid>("Id")
@@ -48,6 +64,9 @@ namespace ShoppingCart.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImageUrl")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
