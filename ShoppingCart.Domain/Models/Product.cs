@@ -31,6 +31,7 @@ namespace ShoppingCart.Domain.Models
 
         public string ImageUrl { get; set; }
 
+        public string Owner { get; set; }
 
        // public bool Disabled { get; set; }
 

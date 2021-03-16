@@ -14,6 +14,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using WebApplication1.Models;
 using ShoppingCart.IOC;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
+using Microsoft.AspNetCore.Http;
 
 namespace WebApplication1
 {
@@ -81,6 +84,20 @@ namespace WebApplication1
             }
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+
+            var cacheMaxAge = "604800";
+            //app.UseStaticFiles(new StaticFileOptions
+            //{
+            //    FileProvider = new PhysicalFileProvider(
+            //            Path.Combine(env.ContentRootPath, "ValuableFiles")),
+            //    RequestPath = "/ValuableFiles",
+            //    OnPrepareResponse = ctx => {
+            //        ctx.Context.Response.Headers.Append(
+            //                 "Cache-Control", $"public, max-age={cacheMaxAge}");
+            //    }
+            //});
+
+
 
             app.UseRouting();
 

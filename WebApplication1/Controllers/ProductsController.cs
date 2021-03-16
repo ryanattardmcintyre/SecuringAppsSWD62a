@@ -4,11 +4,13 @@ using System.IO;
 using System.Linq;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ShoppingCart.Application.Interfaces;
 using ShoppingCart.Application.ViewModels;
+using WebApplication1.ActionFilters;
 
 namespace WebApplication1.Controllers
 {
@@ -29,10 +31,11 @@ namespace WebApplication1.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public IActionResult Create()
         { return View(); }
 
-        [HttpPost][ValidateAntiForgeryToken]
+        [HttpPost][ValidateAntiForgeryToken][Authorize]
         public IActionResult Create(IFormFile file, ProductViewModel data)
         {
            
@@ -43,7 +46,11 @@ namespace WebApplication1.Controllers
             {
 
                 string uniqueFilename;
-                if (System.IO.Path.GetExtension(file.FileName) == ".jpg")
+                if (System.IO.Path.GetExtension(file.FileName) == ".jpg"
+                    &&
+                    file.Length < 1048576
+
+                    )
                 {
                     //FF D8 >>>>> 255 216
 
@@ -92,6 +99,11 @@ namespace WebApplication1.Controllers
                         }
                     }
                 }
+                else
+                {
+                    ModelState.AddModelError("file", "File is not valid and acceptable or size is greater than 10Mb");
+                    return View();
+                }
 
                 if (data.Category.Id < 1 || data.Category.Id > 4 )
                 {
@@ -100,6 +112,8 @@ namespace WebApplication1.Controllers
                 }
 
                 //once the product has been inserted successfully in the db
+
+                data.Owner = HttpContext.User.Identity.Name; //this is the currently logged in user
 
                 _prodService.AddProduct(data);
 
@@ -115,5 +129,29 @@ namespace WebApplication1.Controllers
             
         
         }
+
+
+        [Authorize][HttpGet]
+        [OwnerAuthorize]
+        public IActionResult Edit(Guid id)
+        {
+            var prod = _prodService.GetProduct(id);
+            return View(prod);
+        }
+
+        [Authorize][OwnerAuthorize][HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(Guid id, ProductViewModel updatedData)
+        {
+            
+            //_prodService.EditProduct(updatedData);
+
+            TempData["message"] = "Product updated successfully";
+            return View();
+
+        }
+
+
+
     }
 }

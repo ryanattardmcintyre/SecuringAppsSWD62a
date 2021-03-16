@@ -29,6 +29,6 @@ namespace ShoppingCart.Application.ViewModels
         public int Stock { get; set; }
         //public List<CategoryViewModel> Categories { get; set; }
 
-
+        public string Owner { get; set; }
     }
 }
