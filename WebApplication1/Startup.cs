@@ -62,9 +62,17 @@ namespace WebApplication1
                  }
                 );
 
-
             DependencyContainer.RegisterServices(services, Configuration.GetConnectionString("DefaultConnection"));
 
+            services.AddAuthentication()
+                  .AddGoogle(options =>
+                  {
+                      IConfigurationSection googleAuthNSection =
+                          Configuration.GetSection("Authentication:Google");
+
+                      options.ClientId = googleAuthNSection["ClientId"];
+                      options.ClientSecret = googleAuthNSection["ClientSecret"];
+                  });
 
         }
 
