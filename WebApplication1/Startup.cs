@@ -40,9 +40,9 @@ namespace WebApplication1
             //    .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
-         .AddEntityFrameworkStores<ApplicationDbContext>()
-         .AddDefaultUI()
-         .AddDefaultTokenProviders();
+             .AddEntityFrameworkStores<ApplicationDbContext>()
+             .AddDefaultUI()
+             .AddDefaultTokenProviders();
 
 
 

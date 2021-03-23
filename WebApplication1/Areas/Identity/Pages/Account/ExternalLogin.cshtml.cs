@@ -86,9 +86,23 @@ namespace WebApplication1.Areas.Identity.Pages.Account
             //HERE we are going to check whether email obtained from the info.Principal.Claims.ToList()[4].Value
             //you check with db whether
             //1. the email already exists
-            //2. the email has a Teacher role associated with it
-            //if any of the two conditions above fail >>> redirect to login page
+            string email = info.Principal.Claims.ToList()[4].Value;
+            var currentlylogginguser = await _userManager.FindByNameAsync(email);
+            if(currentlylogginguser == null) {//return to login page
+            }
+            else
+            {//the email already exists
+             //confirm the role ....is he/she a teacher??
 
+                //2. the email has a Teacher role associated with it
+                //if any of the two conditions above fail >>> redirect to login page
+
+                bool confirmation = await _userManager.IsInRoleAsync(currentlylogginguser, "TEACHER");
+                if (!confirmation)
+                {
+                    //return to login page
+                }
+            }
 
 
             // Sign in the user with this external login provider if the user already has a login.
