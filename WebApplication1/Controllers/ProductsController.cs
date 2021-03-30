@@ -8,9 +8,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using ShoppingCart.Application.Interfaces;
 using ShoppingCart.Application.ViewModels;
 using WebApplication1.ActionFilters;
+using WebApplication1.Models;
 
 namespace WebApplication1.Controllers
 {
@@ -18,8 +20,10 @@ namespace WebApplication1.Controllers
     {
         private readonly IProductsService _prodService;
         private readonly IWebHostEnvironment _host;
-        public ProductsController(IProductsService prodService, IWebHostEnvironment host)
+        private readonly ILogger<ProductsController> _logger;
+        public ProductsController(IProductsService prodService, IWebHostEnvironment host, ILogger<ProductsController> logger)
         {
+            _logger = logger;
             _host = host;
             _prodService = prodService;
         }
@@ -89,13 +93,23 @@ namespace WebApplication1.Controllers
                             data.ImageUrl = uniqueFilename;
 
                             string absolutePath = _host.WebRootPath + @"\pictures\" + uniqueFilename;
-
-                            using (FileStream fsOut = new FileStream(absolutePath, FileMode.CreateNew, FileAccess.Write))
+                            try
                             {
-                                f.CopyTo(fsOut);
-                            }
+                                using (FileStream fsOut = new FileStream(absolutePath, FileMode.CreateNew, FileAccess.Write))
+                                {
+                                    throw new Exception();
+                                    f.CopyTo(fsOut);
+                                }
 
-                            f.Close();
+                                f.Close();
+                            }
+                            catch (Exception ex)
+                            {
+                                //log
+                                _logger.LogError(ex, "Error happend while saving file");
+
+                                return View("Error", new ErrorViewModel() { Message = "Error while saving the file. Try again later" });
+                            }
                         }
                     }
                 }

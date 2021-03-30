@@ -17,6 +17,7 @@ using ShoppingCart.IOC;
 using Microsoft.Extensions.FileProviders;
 using System.IO;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace WebApplication1
 {
@@ -64,7 +65,7 @@ namespace WebApplication1
 
             DependencyContainer.RegisterServices(services, Configuration.GetConnectionString("DefaultConnection"));
 
-            services.AddAuthentication()
+           services.AddAuthentication()
                   .AddGoogle(options =>
                   {
                       IConfigurationSection googleAuthNSection =
@@ -73,23 +74,30 @@ namespace WebApplication1
                       options.ClientId = googleAuthNSection["ClientId"];
                       options.ClientSecret = googleAuthNSection["ClientSecret"];
                   });
-
+          
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-                app.UseDatabaseErrorPage();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
-            }
+            loggerFactory.AddFile("logs/mylog-{Date}.txt");
+
+            //if (env.IsDevelopment())
+            //{
+            //    app.UseDeveloperExceptionPage();
+            //    app.UseDatabaseErrorPage();
+            //}
+            //else //production mode
+            //{
+            //    app.UseExceptionHandler("/Home/Error"); //any unhandled exceptions
+
+            //    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+            //    app.UseHsts();
+            //}
+            app.UseExceptionHandler("/Home/Error");
+            app.UseHsts();
+
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
