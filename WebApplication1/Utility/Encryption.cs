@@ -74,8 +74,8 @@ namespace WebApplication1.Utility
         }
 
 
-        string password = "Pa$$w0rd";
-        byte[] salt = new byte[]
+        static string password = "Pa$$w0rd";
+        static byte[] salt = new byte[]
         {
             20, 1, 34,56,78,34,11,111,234,43,180,139,127,34,52,45,255,253,1
         };
@@ -86,7 +86,7 @@ namespace WebApplication1.Utility
         /// </summary>
         /// <param name="clearData"></param>
         /// <returns></returns>
-        public byte[] SymmetricEncrypt(byte[] clearData)
+        public static byte[] SymmetricEncrypt(byte[] clearData)
         {
             //Note:
             //1st thing is to think of how you are going to handle the keys
@@ -135,7 +135,7 @@ namespace WebApplication1.Utility
 
         }
 
-        public SymmetricKeys GenerateKeys()
+        public static SymmetricKeys GenerateKeys()
         {
             // Password + Salt >>>>> Algorithm >>> Secret Key + IV (which is the input needed by the encryption algorithm)
 
@@ -152,12 +152,82 @@ namespace WebApplication1.Utility
             return keys;
         }
 
+        //clear bytes = original data (input by the user)
+        //cipher = encrypted data
+        public static byte[] SymmetricDecrypt(byte[] cipherAsBytes)
+         {
+            //0. declare the algorithm to use
+            Rijndael myAlg = Rijndael.Create();
+            //1. first we generate the secret key and iv
+            var keys = GenerateKeys();
+
+            //2. load the data into a MemoryStream
+            MemoryStream msIn = new MemoryStream(cipherAsBytes);
+            msIn.Position = 0; //making sure that the pointer of the byte to read next is at the beginning so we encrypt everything
+
+            //3. declare where to store the clear data
+            MemoryStream msOut = new MemoryStream();
+
+            //4. declaring a Stream which handles data decryption
+            CryptoStream cs = new CryptoStream(msOut, //target stream where to write the data
+                myAlg.CreateDecryptor(keys.SecretKey, keys.Iv), //the engine that operate the encrypting medium
+                 CryptoStreamMode.Write //this will write the data fed into the medium
+                    );
+
+            //5. we start the encrypting engine
+            msIn.CopyTo(cs);
+
+            //6. make sure that the data is all written (flushed) into msOut
+            cs.FlushFinalBlock();
+
+            //7. 
+            cs.Close();
+
+            //8.
+            return msOut.ToArray();
+        }
+
+        public static string SymmetricEncrypt(string clearData)
+         {
+            //1. convert
+            //   To convert any input (given by the user) we normally use Encoding.<character set>.GetBytes(...)
+
+            byte[] clearDataAsBytes = Encoding.UTF32.GetBytes(clearData);
+
+            //2. encrypting
+            byte[] cipherAsBytes = SymmetricEncrypt(clearDataAsBytes);
+
+            //3. converting back to a string
+            // to convert from base64 bytes (which is the output of any cryptographic algorithm) we have to use Convert.ToBase64String...
+            string cipher = Convert.ToBase64String(cipherAsBytes);
 
 
-        //public string SymmetricEncrypt(string clearData)
-        //{
-        
-        //}
+            //if used in querystrings remember to replace the / + = with any other characters which do not mean anything
+            //in a querystring
+
+            return cipher;
+         }
+
+        public static string SymmetricDecrypt(string cipher)
+        {
+
+            //remember to replace back any of the characters / + =
+
+            //1. convert
+            //   To convert any input (given by the user) we normally use Encoding.<character set>.GetBytes(...)
+
+            byte[] cipherDataAsBytes = Convert.FromBase64String(cipher);
+
+            //2. decryption
+            byte[] clearDataAsBytes = SymmetricDecrypt(cipherDataAsBytes);
+
+            //3. converting back to a string
+            // to convert from base64 bytes (which is the output of any cryptographic algorithm) we have to use Convert.ToBase64String...
+            string originalText = Encoding.UTF32.GetString(clearDataAsBytes);
+
+            return originalText;
+        }
+
 
 
 

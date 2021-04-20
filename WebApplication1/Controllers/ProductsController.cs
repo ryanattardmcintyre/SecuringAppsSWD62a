@@ -13,6 +13,7 @@ using ShoppingCart.Application.Interfaces;
 using ShoppingCart.Application.ViewModels;
 using WebApplication1.ActionFilters;
 using WebApplication1.Models;
+using WebApplication1.Utility;
 
 namespace WebApplication1.Controllers
 {
@@ -149,7 +150,9 @@ namespace WebApplication1.Controllers
         [OwnerAuthorize]
         public IActionResult Edit(Guid id)
         {
-            var prod = _prodService.GetProduct(id);
+
+
+           var prod = _prodService.GetProduct(id);
             return View(prod);
         }
 
@@ -157,7 +160,8 @@ namespace WebApplication1.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Edit(Guid id, ProductViewModel updatedData)
         {
-            
+            //
+
             //_prodService.EditProduct(updatedData);
 
             TempData["message"] = "Product updated successfully";
