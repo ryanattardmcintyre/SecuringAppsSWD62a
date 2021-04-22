@@ -12,9 +12,19 @@ namespace WebApplication1.Controllers
         public IActionResult Index()
         {
 
-            string cipher = Encryption.SymmetricEncrypt("this is a text which i would like to encrypt");
+            //string cipher = Encryption.SymmetricEncrypt("this is a text which i would like to encrypt");
 
-            string originalString = Encryption.SymmetricDecrypt(cipher);
+            //string originalString = Encryption.SymmetricDecrypt(cipher);
+
+
+             
+
+            //aGVsbG8gd29ybGQ=
+
+            var asymmetricKeys = Encryption.GenerateAsymmetricKeys();
+
+           var cipher =  Encryption.AsymmetricEncrypt("aGVsbG8gd29ybGQ=", asymmetricKeys.PublicKey);
+            var originalText = Encryption.AsymmetricDecrypt(cipher, asymmetricKeys.PrivateKey);
 
 
             return View();

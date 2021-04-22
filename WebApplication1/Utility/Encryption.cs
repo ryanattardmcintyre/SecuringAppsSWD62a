@@ -86,7 +86,7 @@ namespace WebApplication1.Utility
         /// </summary>
         /// <param name="clearData"></param>
         /// <returns></returns>
-        public static byte[] SymmetricEncrypt(byte[] clearData)
+        public static byte[] SymmetricEncrypt(byte[] clearData )
         {
             //Note:
             //1st thing is to think of how you are going to handle the keys
@@ -229,10 +229,100 @@ namespace WebApplication1.Utility
         }
 
 
+        //Asymmetric Encryption/Decryption
+        //public key = is used to encrypt
+        //private key = is used to decrypt
 
+
+        //my recommendation is this:
+        //when a user is registered in addition to his/her details, you also generate this pair of keys (and store them in the db)
+
+
+        public static AsymmetricKeys GenerateAsymmetricKeys()
+        {
+            //RSA and the DSA
+            RSACryptoServiceProvider myAlg = new RSACryptoServiceProvider();
+
+            AsymmetricKeys myKeys = new AsymmetricKeys()
+            {
+                PublicKey = myAlg.ToXmlString(false),
+                PrivateKey = myAlg.ToXmlString(true)
+            };
+
+            return myKeys;
+        }
+
+
+        public static string AsymmetricEncrypt(string data, string publicKey)
+        {
+            RSACryptoServiceProvider myAlg = new RSACryptoServiceProvider();
+            myAlg.FromXmlString(publicKey);
+
+
+            byte[] dataAsBytes = Encoding.UTF32.GetBytes(data);
+
+            byte[] cipher = myAlg.Encrypt(dataAsBytes, RSAEncryptionPadding.Pkcs1);
+
+            return Convert.ToBase64String(cipher);
+        }
+
+        public static string AsymmetricDecrypt(string cipher, string privateKey)
+        {
+            RSACryptoServiceProvider myAlg = new RSACryptoServiceProvider();
+            myAlg.FromXmlString(privateKey);
+
+            byte[] cipherAsBytes = Convert.FromBase64String(cipher);
+
+            byte[] originalTextAsBytes = myAlg.Decrypt(cipherAsBytes, RSAEncryptionPadding.Pkcs1);
+
+            return Encoding.UTF32.GetString(originalTextAsBytes);
+        }
+
+
+        //clear = unencrypted
+        public static MemoryStream HybridEncrypt(MemoryStream clearFile, string publicKey)
+        {
+            //preparation:
+            //              you need to fetch from db the public pertaining to the uploading/logged in user
+
+            //1. Generate the symmetric keys
+            Rijndael myAlg = Rijndael.Create();
+            myAlg.GenerateKey(); myAlg.GenerateIV();
+            var key = myAlg.Key; var iv = myAlg.IV;
+
+            //2. Encrypting the clearFile using Symmetric Encryption
+            //var encryptedBytes =  SymmetricEncrypt(clearFileAsBytes, key, iv)
+
+            //3. Asymmetrically encrypt using the public key, the symm key and iv above
+            string keyAsString = Convert.ToBase64String(key);
+            string encryptedKeyAsString = AsymmetricEncrypt(keyAsString, publicKey);
+
+
+            //4. store the above encryted data n one file
+            byte[] encrtypedKey= Convert.FromBase64String(encryptedKeyAsString) ;
+           // byte[] encyptedIv;
+            byte[] encryptedBytes; //this the uploaded file content
+
+            MemoryStream msOut = new MemoryStream();
+            msOut.Write(encrtypedKey, 0, encrtypedKey.Length);
+            // msOut.Write(encyptedIv, 0, encyptedIv.Length);
+
+            //encryptedBytes  [234alsdjfalsdkfj;alskdfjalsdkjfalskdjflaskdjflaskdjflasdjflaksjdflaksdjflaksd;jflaskdjaskldjflsdkfj]
+          /*  MemoryStream encryptedfileContent = new MemoryStream(encryptedBytes);
+            encryptedfileContent.Position = 0;
+            encryptedfileContent.CopyTo(msOut);
+          */
+            return msOut;
+        }
 
     }
 
+
+    public class AsymmetricKeys
+    {
+        public string PublicKey { get; set; }//<<<<< in real life scenarios this is shared
+        public string PrivateKey { get; set; } //<<<<<<< this is the one that should be really really kept safe
+    }
 
     public class SymmetricKeys
     {

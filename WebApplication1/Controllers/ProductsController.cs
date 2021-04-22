@@ -45,7 +45,7 @@ namespace WebApplication1.Controllers
         {
            
             data.Description = HtmlEncoder.Default.Encode(data.Description);
-     
+    
 
             if (ModelState.IsValid)
             {
@@ -63,6 +63,8 @@ namespace WebApplication1.Controllers
 
                     if (file != null)
                     {
+                        MemoryStream userFile = new MemoryStream();
+
                         using (var f = file.OpenReadStream())
                         {
                             /*int byte1 = f.ReadByte();
@@ -98,10 +100,10 @@ namespace WebApplication1.Controllers
                             {
                                 using (FileStream fsOut = new FileStream(absolutePath, FileMode.CreateNew, FileAccess.Write))
                                 {
-                                    throw new Exception();
+                                   // throw new Exception();
                                     f.CopyTo(fsOut);
                                 }
-
+                             //   f.CopyTo(userFile); //this goes instead writing the file into a folder
                                 f.Close();
                             }
                             catch (Exception ex)
@@ -112,6 +114,7 @@ namespace WebApplication1.Controllers
                                 return View("Error", new ErrorViewModel() { Message = "Error while saving the file. Try again later" });
                             }
                         }
+
                     }
                 }
                 else
