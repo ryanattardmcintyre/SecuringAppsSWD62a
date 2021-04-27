@@ -69,6 +69,7 @@ namespace WebApplication1.Utility
         public static byte[] Hash(byte[] clearTextBytes)
         {
             SHA512 myAlg = SHA512.Create();
+            
             byte[] digest = myAlg.ComputeHash(clearTextBytes);
             return digest;
         }
@@ -314,6 +315,44 @@ namespace WebApplication1.Utility
           */
             return msOut;
         }
+
+
+        public static string SignData(MemoryStream data, string privateKey)
+        {
+            RSACryptoServiceProvider myAlg = new RSACryptoServiceProvider();
+            myAlg.FromXmlString(privateKey);
+
+            //change the data from MemoryStream into byte[]
+            byte[] dataAsBytes = data.ToArray();
+
+            //Hash the data
+            byte[] digest = Hash(dataAsBytes);
+
+            byte[] signatureAsBytes = myAlg.SignHash(digest, "SHA512");
+            //save the signature in the database > table containing the file data.
+
+            return Convert.ToBase64String(signatureAsBytes);
+        }
+
+        public static bool VerifyData(MemoryStream data, string publicKey, string signature)
+        {
+            RSACryptoServiceProvider myAlg = new RSACryptoServiceProvider();
+            myAlg.FromXmlString(publicKey);
+
+            //change the data from MemoryStream into byte[]
+            byte[] dataAsBytes = data.ToArray();
+
+            //Hash the data
+            byte[] digest = Hash(dataAsBytes);
+
+            //converting the signature into an array of bytes
+            byte[] signatureAsBytes = Convert.FromBase64String(signature);
+
+            bool valid=  myAlg.VerifyHash(digest, "SHA512", signatureAsBytes);
+
+            return valid;
+        }
+
 
     }
 

@@ -32,7 +32,7 @@ namespace WebApplication1.Controllers
             //1. get who is the owner of the file with id = id
             //2. you fetch the private key
             //3. call the HybridDecrypt 
-            MemoryStream toDownload;// = HybridDecrypt(...)
+            MemoryStream toDownload = new MemoryStream();// = HybridDecrypt(...)
 
 
             return File(toDownload, "application/octet-stream", Guid.NewGuid() + ".pdf");

@@ -16,16 +16,16 @@ namespace WebApplication1.Controllers
         { _userManager = userManager; }
         
         
-        public async Task<IActionResult> GenerateAccount(StudentCreationModel model)
-        {
+        //public async Task<IActionResult> GenerateAccount(StudentCreationModel model)
+        //{
 
 
-            var user = new ApplicationUser { UserName = model.Email, Email = model.Email, FirstName = model.FirstName, LastName = model.LastName };
-            var result = await _userManager.CreateAsync(user, model.Password);
+        //    var user = new ApplicationUser { UserName = model.Email, Email = model.Email, FirstName = model.FirstName, LastName = model.LastName };
+        //    var result = await _userManager.CreateAsync(user, model.Password);
 
 
 
-            return View();
-        }
+        //    return View();
+        //}
     }
 }
